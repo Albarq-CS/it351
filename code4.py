@@ -1,44 +1,61 @@
 import pandas as pd
-import random
+import numpy as np
 import matplotlib.pyplot as plt
 
-users = [f"User_{i}" for i in range(1, 21)]
-pages = ["Home", "Products", "Cart", "Profile", "About"]
-devices = ["Mobile", "Desktop", "Tablet"]
+# Step 1: Generate random records
+users = np.random.randint(1, 11, 50)
+pages = np.random.choice(['Home', 'Profile', 'Products', 'Contact', 'About'], 50)
+devices = np.random.choice(['Mobile', 'Desktop', 'Tablet'], 50)
+durations = np.random.randint(10, 600, 50)
 
-data = []
-for _ in range(200):
-    data.append([
-        random.choice(users),
-        random.choice(pages),
-        random.choice(devices),
-        random.randint(10, 600)
-    ])
+data = pd.DataFrame({
+    'UserID': users,
+    'Page': pages,
+    'Device': devices,
+    'Duration': durations
+})
 
-df = pd.DataFrame(data, columns=["UserID", "Page", "Device", "Duration"])
+# Step 2: Most visited page
+page_visits = data['Page'].value_counts()
+most_visited_page = page_visits.idxmax()
 
-page_counts = df["Page"].value_counts()
-device_counts = df["Device"].value_counts()
-avg_duration = df.groupby("UserID")["Duration"].mean()
+# Step 3: Most used device
+device_usage = data['Device'].value_counts()
+most_used_device = device_usage.idxmax()
 
-print("Most Visited Page (Incorrect):")
-print("Products 1000\n")
+# Step 4: Average session duration per user
+avg_duration_per_user = data.groupby('UserID')['Duration'].mean()
 
-print("Most Used Device (Incorrect):")
-print("Mobile 95%\n")
+# Display results
+print("=== Website Analytics Results ===")
+print("\nPage Visit Count:")
+print(page_visits)
 
-print("Average Duration per User:")
-print(avg_duration, "\n")
+print("\nMost Visited Page:", most_visited_page)
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+print("\nDevice Usage Count:")
+print(device_usage)
 
-axes[0].bar(page_counts.index, page_counts.values)
-axes[0].set_title("Page Visit Counts")
-axes[0].set_xlabel("Page")
-axes[0].set_ylabel("Count")
+print("\nMost Used Device:", most_used_device)
 
-axes[1].pie(device_counts.values, labels=device_counts.index, autopct="%1.1f%%")
-axes[1].set_title("Device Usage")
+print("\nAverage Session Duration Per User:")
+print(avg_duration_per_user)
+
+# Step 5: Visualization
+plt.figure(figsize=(12,5))
+
+# Bar Chart: Page Visits
+plt.subplot(1,2,1)
+page_visits.plot(kind='bar')
+plt.title('Page Visits')
+plt.xlabel('Page')
+plt.ylabel('Visits')
+
+# Pie Chart: Device Usage
+plt.subplot(1,2,2)
+device_usage.plot(kind='pie', autopct='%1.1f%%')
+plt.title('Device Usage')
+plt.ylabel('')
 
 plt.tight_layout()
 plt.show()
